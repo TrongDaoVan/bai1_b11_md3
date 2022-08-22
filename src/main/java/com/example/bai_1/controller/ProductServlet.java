@@ -29,8 +29,10 @@ public class ProductServlet extends HttpServlet {
                 themSP(req, resp);
                 break;
             case "suaSP":
+                bangSuaSP(req,resp);
                 break;
             case "xoaSP":
+                xoaSP(req,resp);
                 break;
             case "timKiem":
                 break;
@@ -52,10 +54,13 @@ public class ProductServlet extends HttpServlet {
             hienThiTrangTaoSP(req,resp);
             break;
         case "suaSP":
+//            hienThiTrangSua(req,resp);
             break;
         case "xoaSP":
+            deleteSP(req,resp);
             break;
         case "timKiem":
+            timKiemKH(req, resp);
             break;
         case "view":
             break;
@@ -90,5 +95,70 @@ RequestDispatcher dispatcher = request.getRequestDispatcher("/sanPhams/taoSp.jsp
         this.productService.taoSP(sanPham);
         RequestDispatcher dispatcher = request.getRequestDispatcher("sanPhams/taoSp.jsp");
         dispatcher.forward(request, response);
+    }
+
+    private void timKiemKH(HttpServletRequest request, HttpServletResponse response) throws IOException,ServletException{
+        int id = Integer.parseInt(request.getParameter("id"));
+        SanPham sanPham = this.productService.timKiem(id);
+        RequestDispatcher dispatcher;
+        if(sanPham == null){
+            dispatcher = request.getRequestDispatcher("/error-404.jsp");
+        } else {
+            request.setAttribute("sanPham", sanPham);
+            dispatcher = request.getRequestDispatcher("/sanPhams/edit.jsp");
+
+        }
+        dispatcher.forward(request, response);
+    }
+
+    private void bangSuaSP (HttpServletRequest request, HttpServletResponse response) throws IOException,ServletException{
+int id = Integer.parseInt(request.getParameter("id"));
+String productName = request.getParameter("productName");
+int priceName = Integer.parseInt(request.getParameter("priceName"));
+String productDescription = request.getParameter("productDescription");
+String producer = request.getParameter("producer");
+
+SanPham sanPham = new SanPham(id, productName, priceName, productDescription, producer);
+
+RequestDispatcher dispatcher;
+if (sanPham == null) {
+    dispatcher = request.getRequestDispatcher("/error-404.jsp");
+} else {
+    sanPham.setId(id);
+    sanPham.setProductName(productName);
+    sanPham.setPriceName(priceName);
+    sanPham.setProductDescription(productDescription);
+    sanPham.setProducer(producer);
+
+    this.productService.suaSP(sanPham, id);
+    request.setAttribute("sanPham", sanPham);
+    dispatcher = request.getRequestDispatcher("/sanPhams/edit.jsp");
+    dispatcher.forward(request, response);
+}
+
+    }
+    private void deleteSP (HttpServletRequest request, HttpServletResponse response) throws IOException,ServletException{
+        int id = Integer.parseInt(request.getParameter("id"));
+        SanPham sanPham = this.productService.timKiem(id);
+        RequestDispatcher dispatcher;
+        if(sanPham == null) {
+            dispatcher = request.getRequestDispatcher("/error-404.jsp");
+        } else {
+            request.setAttribute("sanPham",sanPham);
+            dispatcher = request.getRequestDispatcher("/sanPhams/delete.jsp");
+        }
+        dispatcher.forward(request, response);
+    }
+
+    private void xoaSP (HttpServletRequest request, HttpServletResponse response) throws IOException,ServletException{
+        int id = Integer.parseInt(request.getParameter("id"));
+        SanPham sanPham = this.productService.timKiem(id);
+        RequestDispatcher dispatcher;
+        if(sanPham == null) {
+            dispatcher = request.getRequestDispatcher("/error-404.jsp");
+        } else {
+            this.productService.xoa(id);
+        }
+        response.sendRedirect("/sanpham1");
     }
 }
